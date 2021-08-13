@@ -53,11 +53,17 @@ fun Bottomnav(
         )
 
 
+
+
         BoxWithConstraints(modifier = Modifier
             .weight(1f)
             .fillMaxHeight()){
             val width = maxWidth - 40.dp -20.dp
-
+            if (selectedTab == 0){
+                firsttabwidthstate = width
+                secondtabwidthstate = 0.dp
+                thirdtabwidthstate = 0.dp
+            }
             Row(
                 modifier = Modifier
                     .padding(all = 10.dp)
@@ -66,7 +72,7 @@ fun Bottomnav(
                         firsttabwidthstate = width
                         secondtabwidthstate = 0.dp
                         thirdtabwidthstate = 0.dp
-
+                        selectedTab = 0
                     }
                     .align(Alignment.Center)
             ) {
@@ -99,6 +105,7 @@ fun Bottomnav(
                         firsttabwidthstate = 0.dp
                         secondtabwidthstate = width
                         thirdtabwidthstate = 0.dp
+                        selectedTab = 1
                     }
                     .align(Alignment.Center)
 
@@ -132,6 +139,7 @@ fun Bottomnav(
                         firsttabwidthstate = 0.dp
                         secondtabwidthstate = 0.dp
                         thirdtabwidthstate = width
+                        selectedTab = 2
                     }
                     .align(Alignment.Center)
             ) {

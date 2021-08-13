@@ -1,12 +1,12 @@
 package com.example.movies
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -16,8 +16,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -32,6 +30,7 @@ import com.example.movies.ui.components.Bottomnav
 import com.example.movies.ui.components.TopBar
 import com.example.movies.ui.theme.MoviesTheme
 
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
@@ -52,12 +51,18 @@ fun HomeScreen(
                     isActive = !isActive
                 }
             }
+
             Surface(color = MaterialTheme.colors.background) {
 
                 val homeBodyHeight =
                     LocalConfiguration.current.screenHeightDp - 70.dp.value.toInt() - 60.dp.value.toInt()
 
+                val screenheight = LocalConfiguration.current.screenHeightDp
+                val screenwidth = LocalConfiguration.current.screenWidthDp
                 // A surface container using the 'background' color from the theme
+                var searchString by remember {
+                    mutableStateOf("")
+                }
                 Surface(color = MaterialTheme.colors.background) {
                     Column(
                         modifier = Modifier
@@ -66,22 +71,33 @@ fun HomeScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
+
                         ) {
                             TopBar(searchOnclick = {
                                 isActive = !isActive
-                            }, isActive = isActive)
+                            }, isActive = isActive,
+                            screenheight = screenheight,
+                            screenwidth = screenwidth,
+                            navHostController = navHostController
+                                )
+
                             HomeBody(
                                 isActive = isActive,
                                 hieght = homeBodyHeight,
                                 navHostController = navHostController
                             )
                         }
-                        Bottomnav(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp)
-                        )
+
+                        AnimatedVisibility(visible = !isActive,
+                            enter = fadeIn(initialAlpha = 0f,animationSpec = tween(1500)),
+                            exit = fadeOut(targetAlpha = 0f,animationSpec = tween(1000))
+                        ) {
+                            Bottomnav(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(60.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -110,7 +126,23 @@ fun HomeBody(
         mutableStateOf(ArrayList<movie>())
     }
 
+    val IntTheaters_movielist = remember {
+        mutableStateOf(ArrayList<movie>())
+    }
+
     SideEffect{
+
+        MoviesRepository.GetAllTopRatedMovies(
+            context = context,
+            object : MoviesRepository.ResonseCallback {
+                override fun onResponseCallback(movie: ArrayList<movie>) {
+                    IntTheaters_movielist.value = movie
+                }
+
+            },
+            NOW_PLAYING
+        )
+
         MoviesRepository.GetAllTopRatedMovies(
             context = context,
             object : MoviesRepository.ResonseCallback {
@@ -149,11 +181,52 @@ fun HomeBody(
         modifier = Modifier
             .fillMaxWidth()
             .height(height = hieght.dp)
-            .verticalScroll(state = rememberScrollState())
+            .verticalScroll(rememberScrollState())
     ) {
 
 //            MoviesOfCategory(category = "Latest ", movielist = repository.latest_movies)
 //             Log.d(TAG,repository.top_rated_movies.toString()+repository.top_rated_movies.isEmpty().toString())
+        AnimatedVisibility(visible = !isActive,
+            enter = fadeIn(initialAlpha = 0f,animationSpec = tween(1500)),
+            exit = fadeOut(targetAlpha = 0f,animationSpec = tween(1000))
+        ){
+
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 5.dp)
+            ) {
+                Text(
+                    text = "In theaters",
+                    fontSize = MaterialTheme.typography.h5.fontSize,
+                    fontWeight = MaterialTheme.typography.h5.fontWeight,
+                    modifier = Modifier.padding(7.dp)
+                )
+                if (IntTheaters_movielist.value.size != 0) {
+                    LazyRow() {
+                        items(IntTheaters_movielist.value) { item ->
+
+                            MovieCard(
+                                height = 350.dp,
+                                width = 250.dp,
+                                title = item.title,
+                                genre =item.genre,
+                                image = item.poster_image,
+                                itemid = item.id,
+                                item = item,
+                                navHostController = navHostController
+                            )
+
+
+                        }
+                    }
+                }
+            }
+
+
+        }
+
 
         AnimatedVisibility(visible = !isActive,
             enter = fadeIn(initialAlpha = 0f,animationSpec = tween(1500)),
@@ -174,12 +247,13 @@ fun HomeBody(
         ) {
             MoviesOfCategory(category = "Upcoming", movielist = upcoming_movielist.value,navHostController = navHostController)
         }
-//            MoviesOfCategory(category = "Upcoming", movielist = repository.upcoming_movies)
+
 
     }
 }
 
 
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Preview()
@@ -199,7 +273,10 @@ fun HomeScreenPreview() {
                 .verticalScroll(rememberScrollState())) {
                 Column(modifier = Modifier.fillMaxWidth()
                 ) {
-                    TopBar(searchOnclick = { /*TODO*/ }, isActive = false)
+                    TopBar(searchOnclick = { /*TODO*/ }, isActive = false,
+                        screenheight = 10,
+                        screenwidth = 10,
+                    navHostController = rememberNavController())
                     HomeBody(isActive = false,
                         hieght = homeBodyHeight,
                     rememberNavController())

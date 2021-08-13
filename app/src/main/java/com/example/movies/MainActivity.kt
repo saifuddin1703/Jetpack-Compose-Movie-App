@@ -8,13 +8,10 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.Center
@@ -41,6 +38,7 @@ import com.example.movies.ui.theme.MoviesTheme
 class MainActivity : ComponentActivity() {
     val TAG = "DEBUGGING"
 
+    @ExperimentalFoundationApi
     @ExperimentalMaterialApi
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +53,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
@@ -71,7 +70,7 @@ fun HostScreen(
         {
             val id = it.arguments?.getString("movieid")?.toInt()
             Log.d("test",id.toString())
-            MovieDetailScreen(movieInt = id)
+            MovieDetailScreen(movieInt = id,navController)
         }
     }
 }
@@ -80,7 +79,8 @@ fun HostScreen(
 
 
 
-@ExperimentalMaterialApi
+    @ExperimentalFoundationApi
+    @ExperimentalMaterialApi
     @ExperimentalAnimationApi
     @Preview()
     @Composable

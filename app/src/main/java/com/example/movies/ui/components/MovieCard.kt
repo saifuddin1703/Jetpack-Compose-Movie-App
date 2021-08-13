@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -24,8 +25,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
+//import coil.compose.rememberImagePainter
+//import coil.util.CoilUtils
 import com.example.movies.models.movie
 import com.example.movies.ui.theme.Shapes
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -39,7 +43,7 @@ fun MovieCard(
     title: String,
     genre: ArrayList<Int>,
     image: String,
-   itemid:Int,
+    itemid:Int,
     navHostController: NavHostController,
     item:movie
 ){
@@ -93,21 +97,17 @@ fun MovieCard(
             }
         ) {
 
-//        heightstate = height
-//        widthstate = width
 
             Column(modifier = Modifier.fillMaxSize()) {
                 Image(
-                    painter = rememberImagePainter(image),
-                    contentDescription = "movie_poster",
+                    painter = rememberImagePainter(data = image),
                     modifier = Modifier
                         .weight(4f)
                         .fillMaxWidth()
-                        .height(200.dp)
                         .clip(shape = RoundedCornerShape(20.dp)),
+                    contentDescription = "movie Poster",
                     contentScale = ContentScale.Crop
-
-                )
+                    )
 
                 Text(
                     text = title,
@@ -134,7 +134,7 @@ fun MovieCard(
 //    }
     LaunchedEffect(key1 = widthstate,) {
         scope.launch {
-            delay(10)
+            delay(4)
            widthstate = width
             heightstate = height
             xState = 0.dp
